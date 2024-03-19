@@ -43,7 +43,8 @@ class EnhanceService(Service):
         tau = data["tau"]
 
         # Enhance
-        output, new_sr = enhance(waveform, sr, "cpu", nfe = nfe, solver = "midpoint", lambd = lambd, tau = tau)
+        device = "cuda:0" if torch.cuda.is_available() else "cpu"
+        output, new_sr = enhance(waveform, sr, device, nfe = nfe, solver = "midpoint", lambd = lambd, tau = tau)
 
         # Save
         output_file = BytesIO()
