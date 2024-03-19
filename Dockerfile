@@ -1,5 +1,5 @@
 # Use the official CUDA base image
-FROM nvidia/cuda:11.4.0-base
+FROM nvidia/cuda:12.3.2-runtime-ubuntu22.04
 
 # Set the working directory
 WORKDIR /app
@@ -10,11 +10,17 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy your AI inference code to the container
-COPY . /app
+# Add the requirements file to the container
+COPY requirements.txt /app
 
 # Install the required Python packages
 RUN pip3 install -r requirements.txt
 
+# Set the environment variable for production
+ENV PRODUCTION=1
+
+# Add the rest of your code to the container
+COPY . /app
+
 # Set the entry point for running your inference code
-CMD ["python3", "server.py"]
+CMD ["python3", "-u", "app.py"]

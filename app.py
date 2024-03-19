@@ -1,5 +1,7 @@
 from sources.all_services import load_services
 from flask import Flask, request
+from waitress import serve
+import os
 
 def main():
 
@@ -40,7 +42,12 @@ def main():
             return "Service not found", 404
         service = load_service(service_name)
         return service.execute(request.json)
-    app.run()
+
+    # Run server
+    if "PRODUCTION" in os.environ:
+        serve(app, host='0.0.0.0', port=5000)
+    else:
+        app.run()
 
 
 if __name__ == '__main__':
