@@ -13,4 +13,7 @@ class HelloService(Service):
         pass # No need to unload anything
 
     def execute(self, args):
-        return { "text": "Hello, " + args["name"] + "!" }
+        yield { "text": "Hello, " + args["name"] + "!" }
+        yield { "text": "How are you today?" }
+        yield { "text": "I'm doing great!" }
+        yield { "text": "Goodbye!" }

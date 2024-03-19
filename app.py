@@ -2,6 +2,8 @@ from sources.all_services import load_services
 from flask import Flask, request
 from waitress import serve
 import os
+import inspect
+from flask import Response, stream_with_context
 
 def main():
 
@@ -23,7 +25,7 @@ def main():
         target_service = service_map[service_name]
         if loaded_service != service_name:
             if loaded_service is not None:
-                old_service = loaded_service
+                old_service = service_map[loaded_service]
                 old_service.unload()
             new_service = service_map[service_name]
             target_service.load()
@@ -41,7 +43,11 @@ def main():
         if service_name not in service_map:
             return "Service not found", 404
         service = load_service(service_name)
-        return service.execute(request.json)
+        result = service.execute(request.json)
+        if inspect.isgenerator(result):
+            return Response(stream_with_context(str(item) + "\n" for item in result), mimetype='text/event-stream')
+        else:
+            return result
 
     # Run server
     if "PRODUCTION" in os.environ:
