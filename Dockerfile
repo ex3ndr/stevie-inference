@@ -8,6 +8,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
+    git-core \
     && rm -rf /var/lib/apt/lists/*
 
 # Add the requirements file to the container
