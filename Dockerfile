@@ -16,6 +16,7 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     git-core \
     git-lfs \
+    ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
 # Add the requirements file to the container
