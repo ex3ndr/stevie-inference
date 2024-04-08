@@ -4,6 +4,7 @@ from waitress import serve
 import os
 import inspect
 from flask import Response, stream_with_context
+import json
 
 def main():
 
@@ -45,7 +46,7 @@ def main():
         service = load_service(service_name)
         result = service.execute(request.json)
         if inspect.isgenerator(result):
-            return Response(stream_with_context(str(item) + "\n" for item in result), mimetype='text/event-stream')
+            return Response(stream_with_context(json.dumps(result) + "\n"), mimetype='application/json')
         else:
             return result
 
