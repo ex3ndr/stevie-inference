@@ -46,7 +46,7 @@ def main():
         service = load_service(service_name)
         result = service.execute(request.json)
         if inspect.isgenerator(result):
-            return Response(stream_with_context(json.dumps(result) + "\n"), mimetype='application/json')
+            return Response(stream_with_context(json.dumps(item) + "\n" for item in result), mimetype='text/event-stream')
         else:
             return result
 
