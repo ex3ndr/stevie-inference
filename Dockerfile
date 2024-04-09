@@ -23,7 +23,7 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt /app
 
 # Install the required Python packages
-RUN pip3 install -r requirements.txt
+RUN pip3 install -r requirements.txt && pip2 install git+https://github.com/m-bain/whisperx.git
 
 # Set the environment variable for production
 ENV PRODUCTION=1

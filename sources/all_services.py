@@ -1,5 +1,6 @@
 from .services.hello import HelloService
 from .services.whisper import WhisperService
+from .services.whisperx import WhisperXService
 from .services.enhance import EnhanceService
 
 def load_services():
@@ -10,6 +11,7 @@ def load_services():
     services.append(HelloService())
     services.append(WhisperService())
     services.append(EnhanceService())
+    services.append(WhisperXService())
 
     # Preload services
     for service in services:
