@@ -13,7 +13,7 @@ class WhisperXService(Service):
         super(WhisperXService, self).__init__("whisperx")
         
     def preload(self):
-        self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.compute_type = "float16" if torch.cuda.is_available() else "float32"
         self.model = whisperx.load_model("large-v2", self.device, compute_type=self.compute_type)
         self.diarize_model = whisperx.DiarizationPipeline(device=self.device, use_auth_token=os.environ.get('HF_TOKEN'))
