@@ -2,7 +2,6 @@ from .services.hello import HelloService
 from .services.whisper import WhisperService
 from .services.whisperx import WhisperXService
 from .services.enhance import EnhanceService
-from .services.silerovad import SileroVADService
 
 def load_services():
     services = []
@@ -13,7 +12,6 @@ def load_services():
     services.append(WhisperService())
     services.append(EnhanceService())
     services.append(WhisperXService())
-    services.append(SileroVADService())
 
     # Preload services
     for service in services:
