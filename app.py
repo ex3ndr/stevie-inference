@@ -1,3 +1,8 @@
+# Dotenv
+from dotenv import load_dotenv
+load_dotenv()
+
+# Imports
 from sources.all_services import load_services
 from flask import Flask, request
 from waitress import serve

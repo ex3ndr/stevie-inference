@@ -6,17 +6,15 @@ import whisperx
 from sources.service import Service
 import torchaudio
 import tempfile
-import os
 
-class WhisperXService(Service):
+class SileroVADService(Service):
     def __init__(self):
-        super(WhisperXService, self).__init__("whisperx")
+        super(SileroVADService, self).__init__("suilervad")
         
     def preload(self):
         self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
         self.compute_type = "float16" if torch.cuda.is_available() else "float32"
         self.model = whisperx.load_model("large-v2", self.device, compute_type=self.compute_type)
-        self.diarize_model = whisperx.DiarizationPipeline(device=self.device, use_auth_token=os.environ.get('HF_TOKEN'))
 
     def load(self):
         pass
@@ -43,29 +41,17 @@ class WhisperXService(Service):
 
         # Prepare
         yield { "status": "preparing" }
-        print("Preparing audio file...")
         with tempfile.NamedTemporaryFile() as temp_file:
             temp_file.write(file)
             audio = whisperx.load_audio(temp_file.name)
 
         # Transcribing
         yield { "status": "transcribing" }
-        print("Transcribing audio file...")
         result = self.model.transcribe(audio, batch_size=16)
-
-        # Alignment
-        yield { "status": "aligning" }
-        print("Aligning audio file...")
-        model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=self.device)
-        result = whisperx.align(result["segments"], model_a, metadata, audio, self.device, return_char_alignments=False)
-
-        # Diarize
-        print("Diarize...")
-        diarize_segments = self.diarize_model(audio)
-        result = whisperx.assign_word_speakers(diarize_segments, result)
+        print(result)
 
         # Return result
         text = "".join(segment["text"] for segment in result['segments'])
-        yield { "status": "transcribed", "text": text.strip(), "segments": result['segments']}
+        yield { "status": "transcribed", "text": text.strip() }
 
         
