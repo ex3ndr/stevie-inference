@@ -1,4 +1,5 @@
 from resemble_enhance.enhancer.inference import enhance
+import torch
 import torchaudio
 import base64
 from io import BytesIO
