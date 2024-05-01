@@ -1,4 +1,4 @@
-from resemble_enhance.enhancer.inference import enhance
+from resemble_enhance.enhancer.inference import enhance, denoise
 import torch
 import torchaudio
 import base64
@@ -38,20 +38,30 @@ class EnhanceService(Service):
         waveform, sr = torchaudio.load(file)
         waveform = waveform[0]
 
-        # Prepare
-        nfe = data["iterations"]
-        lambd = data["lambda"]
-        tau = data["tau"]
+        # Check if denoise
+        if data["op"] == "denoise":
+            
+            # Denoise
+            device = "cuda:0" if torch.cuda.is_available() else "cpu"
+            output, new_sr = denoise(waveform, sr, device)
 
-        # Enhance
-        device = "cuda:0" if torch.cuda.is_available() else "cpu"
-        output, new_sr = enhance(waveform, sr, device, nfe = nfe, solver = "midpoint", lambd = lambd, tau = tau)
+        else:
+            # Prepare
+            nfe = data["iterations"]
+            lambd = data["lambda"]
+            tau = data["tau"]
+
+            # Enhance
+            device = "cuda:0" if torch.cuda.is_available() else "cpu"
+            output, new_sr = enhance(waveform, sr, device, nfe = nfe, solver = "midpoint", lambd = lambd, tau = tau)
 
         # Save
         output_file = BytesIO()
         torchaudio.save(output_file, output.unsqueeze(0), new_sr, format = "wav")
         output_file.seek(0)
         base64_output = base64.b64encode(output_file.read()).decode('utf-8')
+
+        
         yield { "status": "saved", "output": base64_output }
         
         
