@@ -5,6 +5,7 @@ import base64
 from io import BytesIO
 import requests
 from sources.service import Service
+from flask import Response
 
 class EnhanceService(Service):
     def __init__(self):
@@ -34,6 +35,8 @@ class EnhanceService(Service):
         output_file = BytesIO()
         torchaudio.save(output_file, output.unsqueeze(0), new_sr, format = "flac")
         output_file.seek(0)
-        return output_file.read()
+        binary_data = output_file.read()
+        return Response(binary_data, mimetype='application/octet-stream')
+        
         
         
