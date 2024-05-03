@@ -14,3 +14,6 @@ class Service:
 
     def execute(self, args):
         raise NotImplementedError
+
+    def execute_direct(self, args):
+        raise NotImplementedError

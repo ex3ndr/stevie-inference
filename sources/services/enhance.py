@@ -19,49 +19,21 @@ class EnhanceService(Service):
     def unload(self):
         pass
 
-    def execute(self, data):
+    def execute_direct(self, request):
 
         # Load file
-        file = None
-        if "contents" in data:
-            file = BytesIO(base64.b64decode(data["contents"]))
-        elif "url" in data:
-            yield { "status": "downloading" }
-            response = requests.get(data["url"])
-            file = BytesIO(response.content)
-        else:
-            yield { "status": "error", "message": "No audio file provided" }
-            return
-        yield { "status": "loaded" }
-
-        yield { "status": "preparing" }
+        file = BytesIO(request.data)
         waveform, sr = torchaudio.load(file)
         waveform = waveform[0]
 
-        # Check if denoise
-        if data["op"] == "denoise":
-            
-            # Denoise
-            device = "cuda:0" if torch.cuda.is_available() else "cpu"
-            output, new_sr = denoise(waveform, sr, device)
-
-        else:
-            # Prepare
-            nfe = data["iterations"]
-            lambd = data["lambda"]
-            tau = data["tau"]
-
-            # Enhance
-            device = "cuda:0" if torch.cuda.is_available() else "cpu"
-            output, new_sr = enhance(waveform, sr, device, nfe = nfe, solver = "midpoint", lambd = lambd, tau = tau)
+        # Do denoising
+        device = "cuda:0" if torch.cuda.is_available() else "cpu"
+        output, new_sr = denoise(waveform, sr, device)
 
         # Save
         output_file = BytesIO()
-        torchaudio.save(output_file, output.unsqueeze(0), new_sr, format = "wav")
+        torchaudio.save(output_file, output.unsqueeze(0), new_sr, format = "flac")
         output_file.seek(0)
-        base64_output = base64.b64encode(output_file.read()).decode('utf-8')
-
-        
-        yield { "status": "saved", "output": base64_output }
+        return output_file.read()
         
         

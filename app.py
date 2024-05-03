@@ -54,6 +54,12 @@ def main():
             return Response(stream_with_context(json.dumps(item) + "\n" for item in result), mimetype='text/event-stream')
         else:
             return result
+    @app.route('/direct/<service_direct>', methods=['POST'])
+    def execute_service_direct(service_direct):
+        if service_direct not in service_map:
+            return "Service not found", 404
+        service = load_service(service_direct)
+        return service.execute_direct(request)
 
     # Run server
     if "PRODUCTION" in os.environ:
