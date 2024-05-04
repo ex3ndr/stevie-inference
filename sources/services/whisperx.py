@@ -8,6 +8,10 @@ import torchaudio
 import tempfile
 import os
 
+align_models = {
+    "ja", "zh", "nl", "uk", "pt", "ar", "cs", "ru", "pl", "hu", "fi", "fa", "el", "tr", "da", "he", "vi", "ko", "ur", "te", "hi", "ca", "ml", "no", "nn"
+}
+
 class WhisperXService(Service):
     def __init__(self):
         super(WhisperXService, self).__init__("whisperx")
@@ -59,10 +63,15 @@ class WhisperXService(Service):
         print("Transcribing audio file...")
         result = self.model.transcribe(audio, batch_size=16)
 
+        # Hack to not crash on unknown languages
+        lang = "en"
+        if result["language"] in align_models:
+            lang = result["language"]
+
         # Alignment
         yield { "status": "aligning" }
         print("Aligning audio file...")
-        model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=self.device)
+        model_a, metadata = whisperx.load_align_model(language_code=lang, device=self.device)
         result = whisperx.align(result["segments"], model_a, metadata, audio, self.device, return_char_alignments=False)
 
         # Diarize
