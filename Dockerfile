@@ -24,12 +24,17 @@ COPY requirements.txt /app
 
 # Install the required Python packages
 RUN pip3 install -r requirements.txt && pip3 install git+https://github.com/m-bain/whisperx.git
+RUN pip3 install ctranslate2==4.5.0
 
 # Set the environment variable for production
 ENV PRODUCTION=1
 
 # Add the rest of your code to the container
 COPY . /app
+
+ENV LD_LIBRARY_PATH=/usr/local/lib/python3.10/dist-packages/nvidia/cublas/lib:/usr/local/lib/python3.10/dist-packages/nvidia/cudnn/lib
+RUN find ~/ -name libcudnn_ops_infer.so.8
+# RUN python3 -c 'import os; import nvidia.cublas.lib;import nvidia.cudnn.lib; print(os.path.dirname(nvidia.cublas.lib.__file__) + ":" + os.path.dirname(nvidia.cudnn.lib.__file__))'
 
 # Set the entry point for running your inference code
 CMD ["python3", "-u", "app.py"]

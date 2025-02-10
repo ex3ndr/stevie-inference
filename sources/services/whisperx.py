@@ -45,6 +45,7 @@ class WhisperXService(Service):
         elif "url" in data:
             yield { "status": "downloading" }
             response = requests.get(data["url"])
+            print("Downloaded file from url %s" % data["url"])
             file = response.content
         else:
             yield { "status": "error", "message": "No audio file provided" }
@@ -56,6 +57,7 @@ class WhisperXService(Service):
         print("Preparing audio file...")
         with tempfile.NamedTemporaryFile() as temp_file:
             temp_file.write(file)
+            temp_file.flush()
             audio = whisperx.load_audio(temp_file.name)
 
         # Transcribing
